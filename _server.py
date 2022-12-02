@@ -15,6 +15,7 @@ from http.server import (
     ThreadingHTTPServer as _ThreadingHTTPServer,
     CGIHTTPRequestHandler as _CGIHTTPRequestHandler
 )
+import os.path as ospath
 #from sys import version_info
 #SYSVERCHECK = version_info >= (3,10)
 #del version_info
@@ -47,6 +48,9 @@ class CGIHTTPRequestHandler(_CGIHTTPRequestHandler):
 #    protocol_version = "HTTP/1.1"
     protocol_version = "HTTP/1.0"
     cgi_directories = []
+    sys_version = ""
+    server_version = ""
+
     def is_cgi(self):
         filename = splitURN(self.path)[0].rpartition("/")
         #print(filename, self.path, sep=" [@] ")
@@ -57,6 +61,13 @@ class CGIHTTPRequestHandler(_CGIHTTPRequestHandler):
         return False
 
     def send_head(self):
+        filename = splitURN(self.path)[0]
+        for index in "index.html", "index.htm", "index.cgi.py":
+            index = ospath.join(filename, index)
+            if ospath.exists(index):
+                path = index
+                break
+
         if self.is_cgi():
             return self.run_cgi()
 
@@ -66,6 +77,7 @@ class CGIHTTPRequestHandler(_CGIHTTPRequestHandler):
 
 class ThreadingHTTPServer(_ThreadingHTTPServer):
     address_family = 2
+
     def __init__(self, server_address: tuple[str, int], RequestHandlerClass, bind_and_activate: bool = ..., rootDir:str=None) -> None:
         super().__init__(server_address, RequestHandlerClass, bind_and_activate)
         self.__docRoot_dir = rootDir
@@ -75,7 +87,7 @@ class ThreadingHTTPServer(_ThreadingHTTPServer):
             request, client_address, self,
             directory=self.__docRoot_dir
             )
-        self.close_request(request)
+        #self.close_request(request)
 
 
 
