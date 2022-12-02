@@ -16,6 +16,8 @@ import tkinter as tk
 from tkinter import ttk, filedialog
 
 
+
+
 class tkWindowPlus: # tk便利化クラス
     def __init__(self) -> None:
         # ウィジェットの親ウィンドウを返す
@@ -52,8 +54,11 @@ class GuiEasyWebserver(tkWindowPlus):
         self.ReSizable(ROOT)
         self.ReSize(ROOT, "720x240")
 
+        ttk.Label(ROOT, text="Welcome").pack()
+
         self.root = ttk.Frame(ROOT)
         self.root.pack()
+
 
         self.refresh()
         self.mainWindow()
@@ -73,28 +78,65 @@ class GuiEasyWebserver(tkWindowPlus):
         self.iplist.config(values=self.__cli.ipScan())
 
 
-    def mainWindow(self):
-        ttk.Label(self.root, text="Welcome").pack()
-        sb2_frame = ttk.Frame(self.root)
-        sb2_frame.grid_rowconfigure(3,weight=1)
-        sb2_frame.grid_columnconfigure(0,weight=1)
+    def __clearFrame(self):
+        for x in self.root.winfo_children():
+            x.destroy()
 
-        ttk.Label(sb2_frame, text="待ち受けIPアドレス : ").grid(row=1,column=0)
-        self.iplist = ttk.Combobox(sb2_frame,textvariable=self.ip)
+
+    def mainWindow(self):
+        self.__clearFrame()
+        self.mainFrame(self.root).pack()
+
+
+    def workingWindow(self):
+        self.__clearFrame()
+        self.workingFrame(self.root).pack()
+
+
+    def waitWindow(self, *functions):
+        self.__clearFrame()
+        waitFrame = ttk.Frame(self.root)
+        ttk.Label(waitFrame, text="しばらくお待ち").pack()
+        waitFrame.pack()
+        if functions:
+            for i, f in enumerate(functions):
+                self.root.after(10+i, f)
+
+
+    def mainFrame(self, rootFrame:ttk.Frame):
+        mainFrame = ttk.Frame(rootFrame)
+        mainFrame.grid_rowconfigure(3,weight=1)
+        mainFrame.grid_columnconfigure(0,weight=1)
+
+        # view ip frame
+        ttk.Label(mainFrame, text="待ち受けIPアドレス : ").grid(row=1,column=0)
+        self.iplist = ttk.Combobox(mainFrame,textvariable=self.ip)
         self.iplist.grid(row=1,column=1)
         self.ipRefresh()
-        ttk.Button(sb2_frame, command=self.ipRefresh, text="IPリスト更新").grid(row=1,column=2)
+        ttk.Button(mainFrame, command=self.ipRefresh, text="IPリスト更新").grid(row=1,column=2)
 
-        ttk.Label(sb2_frame, text="Port 番号 : ").grid(row=2,column=0)
-        ttk.Entry(sb2_frame,textvariable=self.port).grid(row=2,column=1)
+        # view port frame
+        ttk.Label(mainFrame, text="Port 番号 : ").grid(row=2,column=0)
+        ttk.Entry(mainFrame,textvariable=self.port).grid(row=2,column=1)
 
-        ttk.Label(sb2_frame, textvariable=self.path).grid(row=3,column=0)
-        ttk.Button(sb2_frame, command=self.chengeRootDir, text="ディレクトリ変更").grid(row=4,column=0)
+        # view directory frame
+        ttk.Label(mainFrame, textvariable=self.path).grid(row=3,column=0)
+        ttk.Button(mainFrame, command=self.chengeRootDir, text="ディレクトリ変更").grid(row=4,column=0)
 
-        ttk.Button(sb2_frame, text="サーバ起動", command=self.openServer).grid(row=4,column=1)
+        # view server start button
+        ttk.Button(mainFrame, text="サーバ起動", command=lambda:self.waitWindow(self.openServer)).grid(row=4,column=1)
 
-        sb2_frame.pack()
+        return mainFrame
 
+
+    def workingFrame(self, rootFrame:ttk.Frame):
+        workingFrame = tk.Frame(rootFrame)
+        ttk.Label(workingFrame, text="稼働中").pack()
+        for x in self.__cli.showValue().items():
+            ttk.Label(workingFrame, text=x).pack()
+        ttk.Button
+        ttk.Button(workingFrame, text="終了", command=lambda:self.waitWindow(self.closeServer, self.mainWindow)).pack()
+        return workingFrame
 
 
     def chengeRootDir(self):
@@ -102,13 +144,17 @@ class GuiEasyWebserver(tkWindowPlus):
         if tmp:
             self.path.set(tmp)
 
+
     # Gui Openserver before
     def openServer(self):
-        flag, e =self.bootableCheck()
+        self.waitWindow()
+        flag, e = self.bootableCheck()
         if flag:
             self.__openServer()
         else:
             self.errorPopup(e)
+            self.mainWindow()
+
 
 
     def is_openServer(self):
@@ -128,21 +174,10 @@ class GuiEasyWebserver(tkWindowPlus):
     def __openServer(self):
         self.__cli.openServer()
         if not self.__cli.is_openServer():
-            return self.errorPopup("error not started server")
+            self.errorPopup("error not started server")
+            self.mainWindow()
         else:
-            sub_win = tk.Toplevel()
-            self.ReSize(sub_win, "300x100")
-            self.ReSizable(sub_win)
-            sub_win.focus_set()
-            sub_win.grab_set()
-            sub_win.title("稼働中")
-            for x in self.__cli.showValue().items():
-                ttk.Label(sub_win, text=x).pack()
-            def f():
-                sub_win.destroy()
-                self.closeServer()
-            ttk.Button(sub_win, text="終了", command=f).pack()
-            sub_win.protocol("WM_DELETE_WINDOW",f)
+            self.workingWindow()
 
 
     def errorPopup(self, *args, title="Error"):

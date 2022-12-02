@@ -17,7 +17,7 @@ from os import getcwd
 
 from socket import gethostname, gethostbyname_ex
 from threading import Thread
-from ftpserver import getHttpServer
+from _server import getHttpServer
 
 
 class easyWebserver(object):
@@ -58,7 +58,7 @@ class easyWebserver(object):
     def setIp(self, ip) -> None:
         try:
             IP = ip_address(ip)
-            if IP.is_loopback or not f"{IP}" in self.ipScan():
+            if not (IP.is_loopback or f"{IP}" in self.ipScan()):
                 raise ValueError
 
         except ValueError:
@@ -126,8 +126,9 @@ class easyWebserver(object):
                 self.__server = getHttpServer(str(self.ip), self.port, self.docRoot)
                 t=Thread(target=self.__server.serve_forever, daemon=True)
                 t.start()
-            except:
+            except Exception as e:
                 self.closeServer()
+                raise e
 
     def closeServer(self):
         if self.__server is not None:
@@ -187,6 +188,7 @@ if __name__ == "__main__":
     #default="0.0.0.0", default=8080, default="./",
 
     argsPars = dict(argsPars.parse_args()._get_kwargs())
+    argsPars["ip"] = "::1"
     print(argsPars)
 
     if not "test":
