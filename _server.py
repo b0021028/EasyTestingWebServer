@@ -1,4 +1,4 @@
-#!/usr/bin/python
+###!/usr/bin/python
 #-*- coding: utf-8 -*-
 #
 # server class
@@ -15,7 +15,10 @@ from http.server import (
     ThreadingHTTPServer as _ThreadingHTTPServer,
     CGIHTTPRequestHandler as _CGIHTTPRequestHandler
 )
-import os.path as ospath
+from os.path import (
+    join as osPathJoin,
+    exists as osPathExists
+)
 #from sys import version_info
 #SYSVERCHECK = version_info >= (3,10)
 #del version_info
@@ -49,7 +52,7 @@ class CGIHTTPRequestHandler(_CGIHTTPRequestHandler):
     protocol_version = "HTTP/1.0"
     cgi_directories = []
     sys_version = ""
-    server_version = ""
+    server_version = "Easy Web Server"
 
     def is_cgi(self):
         filename = splitURN(self.path)[0].rpartition("/")
@@ -63,8 +66,8 @@ class CGIHTTPRequestHandler(_CGIHTTPRequestHandler):
     def send_head(self):
         filename = splitURN(self.path)[0]
         for index in "index.html", "index.htm", "index.cgi.py":
-            index = ospath.join(filename, index)
-            if ospath.exists(index):
+            index = osPathJoin(filename, index)
+            if osPathExists(index):
                 path = index
                 break
 
