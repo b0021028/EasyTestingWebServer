@@ -29,7 +29,7 @@ from os.path import (
 
 
 # path と query と fragment を切り分ける
-def splitURN(pathAndQuery="/") -> tuple[str,str,str]:
+def splitURN(pathAndQuery="/") -> tuple[str, str, str]:
     """* `"/example/top.html?q=testserch&ab;c#t1"` -> `("/example/top.html", "q=testserch&ab;c", "t1")`\n\n* urn -> (path , query(?) , fragment(#))"""
     path, _, fragment = str(pathAndQuery).partition("#")
     path, _, query = path.partition("?")
@@ -50,7 +50,7 @@ def splitURN(pathAndQuery="/") -> tuple[str,str,str]:
 class CGIHTTPRequestHandler(_CGIHTTPRequestHandler):
 #    protocol_version = "HTTP/1.1"
     protocol_version = "HTTP/1.0"
-    cgi_directories = []
+    cgi_directories = set()
     sys_version = ""
     server_version = "Easy Web Server"
 

@@ -27,8 +27,7 @@ class easyWebserver(object):
 
     __server = None
 
-    def __init__(self, ip=None,port=None,directory=None):
-        print(self.__server)
+    def __init__(self, ip=None, port=None, directory=None):
         self.refresh()
         if ip:
             self.ip = ip
@@ -140,10 +139,10 @@ class easyWebserver(object):
         return self.__server is not None
 
     def showValue(self):
-        return {"ip":self.ip,"port":self.port,"directory":self.docRoot}
+        return {"ip":self.ip, "port":self.port, "directory":self.docRoot}
 
     def __dict__(self):
-        return {"ip":self.ip,"port":self.port,"directory":self.docRoot}
+        return {"ip":self.ip, "port":self.port, "directory":self.docRoot}
 
 
     def __setattr__(self, key, value):
@@ -166,11 +165,13 @@ class easyWebserver(object):
 
 if __name__ == "__main__":
     import argparse
-    from ipaddress import ip_address
+    from ipaddress import IPv4Address, ip_address
     from os.path import isdir
 
     def ip(x):
-        return str(ip_address(x))
+        _x = ip_address(x)
+        if not type(_x) is IPv4Address:raise ValueError
+        return str()
     def port(x):
         _x = int(x)
         if not (0 < _x < 0x10000):raise ValueError
@@ -188,7 +189,7 @@ if __name__ == "__main__":
     #default="0.0.0.0", default=8080, default="./",
 
     argsPars = dict(argsPars.parse_args()._get_kwargs())
-    argsPars["ip"] = "::1"
+    #argsPars["ip"] = "0.0.0.0"
     print(argsPars)
 
     if not "test":

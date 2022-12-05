@@ -32,7 +32,7 @@ Combobox = tkinter.ttk.Combobox
 Entry    = tkinter.ttk.Entry
 del tkinter
 """
-
+"""
 class tkWindowPlus: # tk便利化クラス
     def __init__(self) -> None:
         # ウィジェットの親ウィンドウを返す
@@ -56,17 +56,18 @@ class tkWindowPlus: # tk便利化クラス
         # 親ウィンドウのリサイズ
         self.ReSize = lambda widget, xy='520x280': personWindow(widget).after(10, lambda:(personWindow(widget).geometry(xy)))
         self.person = personWindow
+"""
 
-
-class GuiEasyWebserver(tkWindowPlus):
+class GuiEasyWebserver:#(tkWindowPlus):
     def __init__(self, root:Tk):
         super().__init__()
         ROOT = root
         self.__cli = easyWebserver()
 
         ROOT.title('超簡易webサーバ')
-        self.ReSizable(ROOT)
-        self.ReSize(ROOT, "720x240")
+        #self.ReSizable(ROOT)
+        #self.ReSize(ROOT, "520x240")
+        ROOT.geometry("320x160")
 
         Label(ROOT, text="Welcome").pack()
 
@@ -137,7 +138,7 @@ class GuiEasyWebserver(tkWindowPlus):
         Entry(mainFrame,textvariable=self.port).grid(row=2,column=1)
 
         # view directory frame
-        Label(mainFrame, textvariable=self.path).grid(row=3,column=0)
+        Label(mainFrame, textvariable=self.path).grid(row=3,column=0,columnspan=3)
         Button(mainFrame, command=self.chengeRootDir, text="ディレクトリ変更").grid(row=4,column=0)
 
         # view server start button
@@ -150,6 +151,7 @@ class GuiEasyWebserver(tkWindowPlus):
         workingFrame = Frame(rootFrame)
         Label(workingFrame, text="稼働中").pack()
         for x in self.__cli.showValue().items():
+            x = "{}\n{}".format(*x)
             Label(workingFrame, text=x).pack()
 
         Button(workingFrame, text="終了", command=lambda:self.waitWindow(self.closeServer)).pack()
@@ -198,8 +200,9 @@ class GuiEasyWebserver(tkWindowPlus):
 
     def errorPopup(self, *args, title="Error"):
         sub_win = Toplevel()
-        self.ReSize(sub_win, "300x100")
-        self.ReSizable(sub_win)
+        sub_win.geometry("300x100")
+        sub_win.resizable(False,False)
+        sub_win.w
         sub_win.focus_set()
         sub_win.grab_set()
         sub_win.title(title)
