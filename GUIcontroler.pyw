@@ -211,13 +211,13 @@ class GuiEasyWebserver:#(tkWindowPlus):
         Button(sub_win, text="OK", command=sub_win.destroy).pack()
 
 
-
     def closeServer(self):
         self.__cli.closeServer()
         for i in range(100):
             if not self.is_openServer():
                 return self.mainWindow()
-        self.root.after(100,self.closeServer())
+        # continue close
+        self.root.after(100, self.closeServer)
 
 def main():
     app=Tk()
